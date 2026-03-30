@@ -63,7 +63,7 @@ public class UniversitySystem {
 
         if (student.outstandingBalance > 1000) {
             System.out.println("Student has unpaid balance");
-            logs.add("Balance issue for " + student.id);
+            logs.add("Balance issue for " + student.getId());
             return;
         }
 
@@ -107,12 +107,12 @@ public class UniversitySystem {
         System.out.println("Fee charged: " + fee);
         logs.add("Enrolled " + studentId + " into " + courseCode);
 
-        if (student.email != null && student.email.contains("@")) {
+        if (isValidEmail(student.getEmail())) {
             System.out.println("Email sent to " + student.email + ": enrolled in " + course.title);
             logs.add("Enrollment email sent");
         } else {
             System.out.println("Invalid email");
-            logs.add("Invalid email for " + student.id);
+            logs.add("Invalid email for " + student.getId());
         }
     }
 
@@ -184,7 +184,7 @@ public class UniversitySystem {
                     System.out.println("Updated GPA: " + student.gpa);
                     System.out.println("Updated Status: " + student.status);
 
-                    if (student.email != null && student.email.contains("@")) {
+                    if (isValidEmail(student.getEmail())) {
                         System.out.println("Email sent to " + student.email + ": grade posted");
                     } else {
                         System.out.println("Could not send grade email");
@@ -231,7 +231,7 @@ public class UniversitySystem {
         System.out.println("Amount accepted: " + amount);
         System.out.println("Remaining balance: " + student.outstandingBalance);
 
-        if (student.email != null && student.email.contains("@")) {
+        if (isValidEmail(student.getEmail())) {
             System.out.println("Email sent to " + student.email + ": payment received");
         }
     }
@@ -249,7 +249,7 @@ public class UniversitySystem {
         System.out.println("----- TRANSCRIPT -----");
         System.out.println("University: " + universityName);
         System.out.println("Name: " + student.name);
-        System.out.println("ID: " + student.id);
+        System.out.println("ID: " + student.getId());
         System.out.println("Department: " + student.department);
         System.out.println("Status: " + student.status);
         System.out.println("GPA: " + student.gpa);
@@ -288,8 +288,8 @@ public class UniversitySystem {
         for (Enrollment e : enrollments) {
             if (e.courseCode.equals(courseCode)) {
                 for (Student student: students) {
-                    if (student.id.equals(e.studentId)) {
-                        System.out.println(student.id + " - " + student.name + " - " + student.status);
+                    if (student.getId().equals(e.studentId)) {
+                        System.out.println(student.getId() + " - " + student.name + " - " + student.status);
                     }
                 }
             }
@@ -339,7 +339,7 @@ public class UniversitySystem {
     public void sendWarningLetters() {
         for (Student student : students) {
             if (student.outstandingBalance > 500 || student.status.equals("PROBATION")) {
-                if (student.email != null && student.email.contains("@")) {
+                if (isValidEmail(student.getEmail())) {
                     System.out.println("Sending warning email to " + student.email);
                     if (student.outstandingBalance > 500) {
                         System.out.println("Reason: unpaid balance");
@@ -347,10 +347,10 @@ public class UniversitySystem {
                     if (student.status.equals("PROBATION")) {
                         System.out.println("Reason: academic probation");
                     }
-                    logs.add("Warning sent to " + student.id);
+                    logs.add("Warning sent to " + student.getId());
                 } else {
                     System.out.println("Could not send warning to " + student.name);
-                    logs.add("Warning failed for " + student.id);
+                    logs.add("Warning failed for " + student.getId());
                 }
             }
         }
@@ -358,7 +358,7 @@ public class UniversitySystem {
 
     public Student findStudent(String id) {
         for (Student student : students) {
-            if (student.id.equals(id)) {
+            if (student.getId().equals(id)) {
                 return student;
             }
         }
@@ -373,4 +373,6 @@ public class UniversitySystem {
         }
         return null;
     }
+    private boolean isValidEmail(String email) { return email != null && email.contains("@"); }
+
 }
