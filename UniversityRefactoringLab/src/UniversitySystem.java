@@ -116,11 +116,11 @@ public class UniversitySystem {
 
     private static double calculateFee(String courseCode, String semester, String paymentType, Student student, Course course) {
         double fee = 0;
-        if (student.type.equals("LOCAL")) {
+        if (student.getType() == Student.StudentType.LOCAL) {
             fee = course.creditHours * 300;
-        } else if (student.type.equals("INTERNATIONAL")) {
+        } else if (student.getType() == Student.StudentType.INTERNATIONAL) {
             fee = course.creditHours * 550;
-        } else if (student.type.equals("SCHOLARSHIP")) {
+        } else if (student.getType() == Student.StudentType.SCHOLARSHIP) {
             fee = course.creditHours * 100;
         } else {
             fee = course.creditHours * 300;
