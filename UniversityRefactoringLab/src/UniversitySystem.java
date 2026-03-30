@@ -14,31 +14,27 @@ public class UniversitySystem {
     public double localRate = 300;
     public double internationalRate = 550;
     public double scholarshipRate = 100;
-    
-    public void enrollStudent(String studentId, String courseCode, String semester, String paymentType) {
+
+    public String enrollStudent(String studentId, String courseCode, String semester, String paymentType) {
         Student student = null;
         Course course = null;
 
         student = findStudent(studentId);
-
         course = findCourse(courseCode);
 
         if (student == null) {
-            System.out.println("Student not found");
             logs.add("Student not found: " + studentId);
-            return;
+            return "Student not found";
         }
 
         if (course == null) {
-            System.out.println("Course not found");
             logs.add("Course not found: " + courseCode);
-            return;
+            return "Course not found";
         }
 
         if (student.isBlocked) {
-            System.out.println("Student is blocked");
             logs.add("Blocked student tried enrollment");
-            return;
+            return "Student is blocked";
         }
 
         if (student.status.equals("PROBATION")) {
@@ -49,30 +45,26 @@ public class UniversitySystem {
                 }
             }
             if (count >= 2) {
-                System.out.println("Probation student cannot register more than 2 courses");
                 logs.add("Probation limit reached");
-                return;
+                return "Probation student cannot register more than 2 courses";
             }
         }
 
         if (course.enrolled >= course.capacity) {
-            System.out.println("Course is full");
             logs.add("Course full: " + courseCode);
-            return;
+            return "Course is full";
         }
 
         if (student.outstandingBalance > 1000) {
-            System.out.println("Student has unpaid balance");
             logs.add("Balance issue for " + student.getId());
-            return;
+            return "Student has unpaid balance";
         }
 
         for (Enrollment e : enrollments) {
             if (e.studentId.equals(studentId) && e.semester.equals(semester)) {
                 if (e.day.equals(course.day) && e.timeSlot.equals(course.timeSlot)) {
-                    System.out.println("Schedule conflict");
                     logs.add("Conflict for " + studentId);
-                    return;
+                    return "Schedule conflict";
                 }
             }
         }
@@ -87,9 +79,8 @@ public class UniversitySystem {
                 }
             }
             if (!passed) {
-                System.out.println("Missing prerequisite");
                 logs.add("Missing prerequisite for " + studentId);
-                return;
+                return "Missing prerequisite";
             }
         }
 
@@ -100,13 +91,6 @@ public class UniversitySystem {
         enrollments.add(newEnrollment);
         course.enrolled++;
 
-        System.out.println("Enrollment completed");
-        System.out.println("Student: " + student.name);
-        System.out.println("Course: " + course.title);
-        System.out.println("Semester: " + semester);
-        System.out.println("Fee charged: " + fee);
-        logs.add("Enrolled " + studentId + " into " + courseCode);
-
         if (isValidEmail(student.getEmail())) {
             System.out.println("Email sent to " + student.email + ": enrolled in " + course.title);
             logs.add("Enrollment email sent");
@@ -114,6 +98,20 @@ public class UniversitySystem {
             System.out.println("Invalid email");
             logs.add("Invalid email for " + student.getId());
         }
+
+        logs.add("Enrolled " + studentId + " into " + courseCode);
+
+        String emailMsg = isValidEmail(student.email)
+                ? "Email sent to " + student.email
+                : "Invalid email";
+
+        return "Enrollment completed\n"
+                + "Student: " + student.name + "\n"
+                + "Course: " + course.title + "\n"
+                + "Semester: " + semester + "\n"
+                + "Fee charged: " + fee + "\n"
+                + emailMsg;
+
     }
 
     private static double calculateFee(String courseCode, String semester, String paymentType, Student student, Course course) {
@@ -148,11 +146,13 @@ public class UniversitySystem {
         return fee;
     }
 
-    public void assignGrade(String studentId, String courseCode, String semester, String grade) {
+    public String assignGrade(String studentId, String courseCode, String semester, String grade) {
         for (Enrollment e : enrollments) {
-            if (e.studentId.equals(studentId) && e.courseCode.equals(courseCode) && e.semester.equals(semester)) {
+            if (e.studentId.equals(studentId) &&
+                    e.courseCode.equals(courseCode) &&
+                    e.semester.equals(semester)) {
+
                 e.grade = grade;
-                System.out.println("Grade assigned");
 
                 double points = 0;
                 if (grade.equals("A")) points = 4.0;
@@ -161,12 +161,8 @@ public class UniversitySystem {
                 else if (grade.equals("D")) points = 1.0;
                 else if (grade.equals("F")) points = 0.0;
 
-                Student student = null;
-                Course course = null;
-
-                student = findStudent(studentId);
-
-                course = findCourse(courseCode);
+                Student student = findStudent(studentId);
+                Course course = findCourse(courseCode);
 
                 if (student != null && course != null) {
                     student.totalCompletedCredits += course.creditHours;
@@ -175,38 +171,42 @@ public class UniversitySystem {
 
                     if (student.gpa < 2.0) {
                         student.status = "PROBATION";
-                    } else if (student.gpa >= 2.0 && student.gpa < 3.5) {
+                    } else if (student.gpa < 3.5) {
                         student.status = "GOOD";
                     } else {
                         student.status = "HONOR";
                     }
 
-                    System.out.println("Updated GPA: " + student.gpa);
-                    System.out.println("Updated Status: " + student.status);
+                    logs.add("Grade assigned to " + studentId + " for " + courseCode);
 
-                    if (isValidEmail(student.getEmail())) {
-                        System.out.println("Email sent to " + student.email + ": grade posted");
-                    } else {
-                        System.out.println("Could not send grade email");
-                    }
+                    String emailMsg = isValidEmail(student.getEmail())
+                            ? "Email sent to " + student.getEmail() + ": grade posted"
+                            : "Could not send grade email";
+
+                    return "Grade assigned\n"
+                            + "Course: " + courseCode + "\n"
+                            + "Grade: " + grade + "\n"
+                            + "Updated GPA: " + student.gpa + "\n"
+                            + "Updated Status: " + student.status + "\n"
+                            + emailMsg;
                 }
             }
         }
+
+        return "Enrollment not found for given student/course/semester";
     }
 
-    public void processPayment(String studentId, double amount, String method) {
+    public String processPayment(String studentId, double amount, String method) {
         Student student = null;
 
         student = findStudent(studentId);
 
         if (student == null) {
-            System.out.println("Student not found");
-            return;
+            return  "Student not found";
         }
 
         if (amount <= 0) {
-            System.out.println("Invalid payment");
-            return;
+            return "Invalid payment amount";
         }
 
         if (method.equals("CARD")) {
@@ -226,75 +226,98 @@ public class UniversitySystem {
 
         payments.add(new PaymentRecord(studentId, amount, method, "PAID"));
 
-        System.out.println("Payment processed for " + student.name);
-        System.out.println("Method: " + method);
-        System.out.println("Amount accepted: " + amount);
-        System.out.println("Remaining balance: " + student.outstandingBalance);
+        // Email message (no printing)
+        String emailMsg = isValidEmail(student.getEmail())
+                ? "Email sent to " + student.getEmail() + ": payment received"
+                : "Could not send payment email";
 
-        if (isValidEmail(student.getEmail())) {
-            System.out.println("Email sent to " + student.email + ": payment received");
-        }
+        return "Payment processed for " + student.name +
+                "\nMethod: " + method +
+                "\nAmount accepted: " + amount +
+                "\nRemaining balance: " + student.outstandingBalance + "\n"
+                + emailMsg;
     }
 
-    public void printTranscript(String studentId) {
-        Student student = null;
+public String printTranscript(String studentId) {
+    Student student = findStudent(studentId);
 
-        student = findStudent(studentId);
-
-        if (student == null) {
-            System.out.println("Student not found");
-            return;
-        }
-
-        System.out.println("----- TRANSCRIPT -----");
-        System.out.println("University: " + universityName);
-        System.out.println("Name: " + student.name);
-        System.out.println("ID: " + student.getId());
-        System.out.println("Department: " + student.department);
-        System.out.println("Status: " + student.status);
-        System.out.println("GPA: " + student.gpa);
-
-        for (Enrollment e : enrollments) {
-            if (e.studentId.equals(studentId)) {
-                String title = "";
-                int credits = 0;
-                for (Course course : courses) {
-                    if (course.code.equals(e.courseCode)) {
-                        title = course.title;
-                        credits = course.creditHours;
-                    }
-                }
-                System.out.println(e.courseCode + " - " + title + " - " + credits + " credits - Grade: " + e.grade);
-            }
-        }
-
-        System.out.println("Outstanding Balance: " + student.outstandingBalance);
-        if (student.outstandingBalance > 0) {
-            System.out.println("WARNING: unpaid dues");
-        }
+    if (student == null) {
+        return "Student not found";
     }
 
-    public void printCourseRoster(String courseCode) {
-        System.out.println("----- COURSE ROSTER -----");
-        for (Course course : courses) {
-            if (course.code.equals(courseCode)) {
-                System.out.println("Course: " + course.title);
-                System.out.println("Instructor: " + course.instructorName);
-                System.out.println("Capacity: " + course.capacity);
-                System.out.println("Enrolled: " + course.enrolled);
-            }
-        }
+    StringBuilder output = new StringBuilder();
 
-        for (Enrollment e : enrollments) {
-            if (e.courseCode.equals(courseCode)) {
-                for (Student student: students) {
-                    if (student.getId().equals(e.studentId)) {
-                        System.out.println(student.getId() + " - " + student.name + " - " + student.status);
-                    }
+    output.append("----- TRANSCRIPT -----\n");
+    output.append("University: ").append(universityName).append("\n");
+    output.append("Name: ").append(student.name).append("\n");
+    output.append("ID: ").append(student.id).append("\n");
+    output.append("Department: ").append(student.department).append("\n");
+    output.append("Status: ").append(student.status).append("\n");
+    output.append("GPA: ").append(student.gpa).append("\n");
+
+    for (Enrollment e : enrollments) {
+        if (e.studentId.equals(studentId)) {
+            String title = "";
+            int credits = 0;
+
+            for (Course course : courses) {
+                if (course.code.equals(e.courseCode)) {
+                    title = course.title;
+                    credits = course.creditHours;
                 }
             }
+
+            output.append(e.courseCode)
+                    .append(" - ")
+                    .append(title)
+                    .append(" - ")
+                    .append(credits)
+                    .append(" credits - Grade: ")
+                    .append(e.grade)
+                    .append("\n");
         }
     }
+
+    output.append("Outstanding Balance: ").append(student.outstandingBalance).append("\n");
+
+    if (student.outstandingBalance > 0) {
+        output.append("WARNING: unpaid dues\n");
+    }
+
+    return output.toString();
+}
+
+public String printCourseRoster(String courseCode) {
+    StringBuilder output = new StringBuilder();
+
+    output.append("----- COURSE ROSTER -----\n");
+
+    for (Course c : courses) {
+        if (c.code.equals(courseCode)) {
+            output.append("Course: ").append(c.title).append("\n");
+            output.append("Instructor: ").append(c.instructorName).append("\n");
+            output.append("Capacity: ").append(c.capacity).append("\n");
+            output.append("Enrolled: ").append(c.enrolled).append("\n");
+        }
+    }
+
+    for (Enrollment e : enrollments) {
+        if (e.courseCode.equals(courseCode)) {
+            for (Student s : students) {
+                if (s.id.equals(e.studentId)) {
+                    output.append(s.id)
+                            .append(" - ")
+                            .append(s.name)
+                            .append(" - ")
+                            .append(s.status)
+                            .append("\n");
+                }
+            }
+        }
+    }
+
+    return output.toString();
+}
 
     public void printDepartmentSummary(String department) {
         System.out.println("----- DEPARTMENT SUMMARY -----");

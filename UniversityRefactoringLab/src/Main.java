@@ -108,7 +108,7 @@ public class Main {
                 System.out.print("Enter Payment Type (CARD/CASH/BANK/INSTALLMENT): ");
                 String pay = scanner.nextLine();
 
-                system.enrollStudent(sid, ccode, sem, pay);
+                System.out.println(system.enrollStudent(sid, ccode, sem, pay));
 
             } else if (choice == 5) {
                 System.out.print("Enter Student ID: ");
@@ -123,7 +123,7 @@ public class Main {
                 System.out.print("Enter Grade (A/B/C/D/F): ");
                 String grade = scanner.nextLine();
 
-                system.assignGrade(sid, ccode, sem, grade);
+                System.out.println(system.assignGrade(sid, ccode, sem, grade));
 
             } else if (choice == 6) {
                 System.out.print("Enter Student ID: ");
@@ -140,12 +140,12 @@ public class Main {
             } else if (choice == 7) {
                 System.out.print("Enter Student ID: ");
                 String sid = scanner.nextLine();
-                system.printTranscript(sid);
+                System.out.println(system.printTranscript(sid));
 
             } else if (choice == 8) {
                 System.out.print("Enter Course Code: ");
                 String ccode = scanner.nextLine();
-                system.printCourseRoster(ccode);
+                System.out.println(system.printCourseRoster(ccode));
 
             } else if (choice == 9) {
                 System.out.print("Enter Department Code (e.g., CS, SE, IT): ");
