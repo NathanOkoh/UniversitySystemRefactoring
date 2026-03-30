@@ -21,11 +21,7 @@ public class UniversitySystem {
 
         student = findStudent(studentId);
 
-        for (Course co : courses) {
-            if (co.code.equals(courseCode)) {
-                course = co;
-            }
-        }
+        course = findCourse(courseCode);
 
         if (student == null) {
             System.out.println("Student not found");
@@ -170,9 +166,7 @@ public class UniversitySystem {
 
                 student = findStudent(studentId);
 
-                for (Course co : courses) {
-                    if (co.code.equals(courseCode)) course = co;
-                }
+                course = findCourse(courseCode);
 
                 if (student != null && course != null) {
                     student.totalCompletedCredits += course.creditHours;
