@@ -46,7 +46,14 @@ public class Main {
                 String dept = scanner.nextLine();
 
                 System.out.print("Enter Type (LOCAL/INTERNATIONAL/SCHOLARSHIP): ");
-                String type = scanner.nextLine();
+
+                Student.StudentType type;
+                try {
+                    type = Student.StudentType.valueOf(scanner.nextLine().toUpperCase());
+                } catch (IllegalArgumentException e) {
+                    System.out.println("Invalid type. Use LOCAL, INTERNATIONAL, or SCHOLARSHIP.");
+                    continue;
+                }
 
                 system.students.add(new Student(id, name, email, dept, type));
                 System.out.println("Student added.");
@@ -135,7 +142,7 @@ public class Main {
                 System.out.print("Enter Method (CARD/BANK/CASH): ");
                 String method = scanner.nextLine();
 
-                system.processPayment(sid, amount, method);
+                System.out.println(system.processPayment(sid, amount, method));
 
             } else if (choice == 7) {
                 System.out.print("Enter Student ID: ");
