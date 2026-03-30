@@ -14,16 +14,12 @@ public class UniversitySystem {
     public double localRate = 300;
     public double internationalRate = 550;
     public double scholarshipRate = 100;
-
+    
     public void enrollStudent(String studentId, String courseCode, String semester, String paymentType) {
         Student student = null;
         Course course = null;
 
-        for (Student studentItem : students) {
-            if (studentItem.id.equals(studentId)) {
-                student = studentItem;
-            }
-        }
+        student = findStudent(studentId);
 
         for (Course co : courses) {
             if (co.code.equals(courseCode)) {
@@ -101,6 +97,30 @@ public class UniversitySystem {
             }
         }
 
+        double fee = calculateFee(courseCode, semester, paymentType, student, course);
+
+        student.outstandingBalance = student.outstandingBalance + fee;
+        Enrollment newEnrollment = new Enrollment(studentId, courseCode, semester, course.day, course.timeSlot);
+        enrollments.add(newEnrollment);
+        course.enrolled++;
+
+        System.out.println("Enrollment completed");
+        System.out.println("Student: " + student.name);
+        System.out.println("Course: " + course.title);
+        System.out.println("Semester: " + semester);
+        System.out.println("Fee charged: " + fee);
+        logs.add("Enrolled " + studentId + " into " + courseCode);
+
+        if (student.email != null && student.email.contains("@")) {
+            System.out.println("Email sent to " + student.email + ": enrolled in " + course.title);
+            logs.add("Enrollment email sent");
+        } else {
+            System.out.println("Invalid email");
+            logs.add("Invalid email for " + student.id);
+        }
+    }
+
+    private static double calculateFee(String courseCode, String semester, String paymentType, Student student, Course course) {
         double fee = 0;
         if (student.type.equals("LOCAL")) {
             fee = course.creditHours * 300;
@@ -129,26 +149,7 @@ public class UniversitySystem {
         if (courseCode.startsWith("SE")) {
             fee = fee + 75;
         }
-
-        student.outstandingBalance = student.outstandingBalance + fee;
-        Enrollment newEnrollment = new Enrollment(studentId, courseCode, semester, course.day, course.timeSlot);
-        enrollments.add(newEnrollment);
-        course.enrolled++;
-
-        System.out.println("Enrollment completed");
-        System.out.println("Student: " + student.name);
-        System.out.println("Course: " + course.title);
-        System.out.println("Semester: " + semester);
-        System.out.println("Fee charged: " + fee);
-        logs.add("Enrolled " + studentId + " into " + courseCode);
-
-        if (student.email != null && student.email.contains("@")) {
-            System.out.println("Email sent to " + student.email + ": enrolled in " + course.title);
-            logs.add("Enrollment email sent");
-        } else {
-            System.out.println("Invalid email");
-            logs.add("Invalid email for " + student.id);
-        }
+        return fee;
     }
 
     public void assignGrade(String studentId, String courseCode, String semester, String grade) {
@@ -167,9 +168,7 @@ public class UniversitySystem {
                 Student student = null;
                 Course course = null;
 
-                for (Student studentItem : students) {
-                    if (studentItem.id.equals(studentId)) student = studentItem;
-                }
+                student = findStudent(studentId);
 
                 for (Course co : courses) {
                     if (co.code.equals(courseCode)) course = co;
@@ -203,11 +202,8 @@ public class UniversitySystem {
 
     public void processPayment(String studentId, double amount, String method) {
         Student student = null;
-        for (Student studentItem : students) {
-            if (studentItem.id.equals(studentId)) {
-                student = studentItem;
-            }
-        }
+
+        student = findStudent(studentId);
 
         if (student == null) {
             System.out.println("Student not found");
@@ -248,11 +244,8 @@ public class UniversitySystem {
 
     public void printTranscript(String studentId) {
         Student student = null;
-        for (Student studentItem : students) {
-            if (studentItem.id.equals(studentId)) {
-                student = studentItem;
-            }
-        }
+
+        student = findStudent(studentId);
 
         if (student == null) {
             System.out.println("Student not found");
