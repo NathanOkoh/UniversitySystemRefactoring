@@ -1,5 +1,27 @@
-public class TranscriptService extends PaymentService {
+import java.util.List;
+
+public class TranscriptService {
     public String universityName = "Metro University";
+
+    private List<Student> students;
+    private List<Course> courses;
+    private List<Enrollment> enrollments;
+
+    public TranscriptService(List<Student> students,
+                             List<Course> courses,
+                             List<Enrollment> enrollments) {
+        this.students = students;
+        this.courses = courses;
+        this.enrollments = enrollments;
+    }
+    public Student findStudent(String id) {
+        for (Student student : students) {
+            if (student.getId().equals(id)) {
+                return student;
+            }
+        }
+        return null;
+    }
 
     public String printTranscript(String studentId) {
         Student student = findStudent(studentId);
@@ -55,19 +77,19 @@ public class TranscriptService extends PaymentService {
 
         output.append("----- COURSE ROSTER -----\n");
 
-        for (Course c : courses) {
-            if (c.code.equals(courseCode)) {
-                output.append("Course: ").append(c.title).append("\n");
-                output.append("Instructor: ").append(c.instructorName).append("\n");
-                output.append("Capacity: ").append(c.capacity).append("\n");
-                output.append("Enrolled: ").append(c.enrolled).append("\n");
+        for (Course course : courses) {
+            if (course.code.equals(courseCode)) {
+                output.append("Course: ").append(course.title).append("\n");
+                output.append("Instructor: ").append(course.instructorName).append("\n");
+                output.append("Capacity: ").append(course.capacity).append("\n");
+                output.append("Enrolled: ").append(course.enrolled).append("\n");
             }
         }
 
-        for (Enrollment e : enrollments) {
-            if (e.courseCode.equals(courseCode)) {
+        for (Enrollment enrollment : enrollments) {
+            if (enrollment.courseCode.equals(courseCode)) {
                 for (Student s : students) {
-                    if (s.id.equals(e.studentId)) {
+                    if (s.id.equals(enrollment.studentId)) {
                         output.append(s.id)
                                 .append(" - ")
                                 .append(s.name)

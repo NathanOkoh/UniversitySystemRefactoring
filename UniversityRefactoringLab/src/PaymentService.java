@@ -1,10 +1,24 @@
-import java.util.ArrayList;
 import java.util.List;
 
-public class PaymentService extends EnrollmentService {
-    public List<PaymentRecord> payments = new ArrayList<>();
-    // helpers
-    private boolean isValidEmail(String email) { return email != null && email.contains("@"); }
+public class PaymentService  {
+    private List<Student> students;
+    private List<PaymentRecord> payments;
+
+    public PaymentService(List<Student> students, List<PaymentRecord> payments) {
+        this.students = students;
+        this.payments = payments;
+    }
+
+    private boolean isValidEmail(String email) {
+        return email != null && email.contains("@");
+    }
+
+    private Student findStudent(String id) {
+        for (Student student : students) {
+            if (student.getId().equals(id)) return student;
+        }
+        return null;
+    }
 
     public String processPayment(String studentId, double amount, String method) {
         Student student = null;

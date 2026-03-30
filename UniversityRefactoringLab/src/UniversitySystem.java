@@ -1,9 +1,15 @@
 import java.util.ArrayList;
 import java.util.List;
 
-public class UniversitySystem extends TranscriptService {
+public class UniversitySystem{
 
+    public List<Student> students = new ArrayList<>();
+    public List<Course> courses = new ArrayList<>();
+    public List<Enrollment> enrollments = new ArrayList<>();
+    public List<PaymentRecord> payments = new ArrayList<>();
+    public List<String> logs = new ArrayList<>();
     public List<Instructor> instructors = new ArrayList<>();
+
 
     public double localRate = 300;
     public double internationalRate = 550;
@@ -113,10 +119,10 @@ public class UniversitySystem extends TranscriptService {
     public String printTranscript(String studentId) {
         return transcriptService.printTranscript(studentId);
     }
-
     public String printCourseRoster(String courseCode) {
         return transcriptService.printCourseRoster(courseCode);
     }
+
     public void printDepartmentSummary(String department) {
         System.out.println("----- DEPARTMENT SUMMARY -----");
         System.out.println("Department: " + department);
